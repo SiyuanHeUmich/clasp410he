@@ -28,8 +28,8 @@ def solve_temp(time, k=1/300, T_init=T_init, T_env=T_env):
     '''
     return T_env + (T_init-T_env)*np.exp(-k*time)
     
-def time_to_temp(T_target, k=1/300, T_init=T_init, T_env=T_env)
-    return (-1/k)*
+def time_to_temp(T_target, k=1/300, T_init=T_init, T_env=T_env):
+    return (-1/k)
 
 #Set up time array
 time = np.arange(0,600,1)        
