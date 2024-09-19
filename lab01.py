@@ -128,7 +128,8 @@ def fire_spread_2(nNorth=3, nEast=5, maxiter=5, pspread=0.5, pbare=0.3):
                     forest = np.zeros([maxiter, nNorth, nEast]) + 1
 
     # Set fire! To the center of the forest.
-    forest[0, nNorth//2, nEast//2] = 3
+    if (forest[k, i, j] == 3):
+        forest[0, nNorth//2, nEast//2] = 3
 
     # Set pspread to a value
     #pspread=.8
