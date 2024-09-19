@@ -42,10 +42,14 @@ fx = np.sin(x)
 fxd1=np.cos(x)
 
 fig,ax= plt.subplots(1,1)
+
+#Plotting actual sin(x) and actual derivative (cos(x))
 ax.plot(x, fx, '.', alpha=.6, label=r'$f(x) = \sin(x)$')
 ax.plot(x, fxd1, label=r'$f(x) = \frac{d\sin(x)}{dx}$')
 
+# Plotting two different metods of difference
 ax.plot(x, fwd_diff(fx, deltax), label='Fwd Diff')
-ax.plot(x, bwd_diff(fx, deltax), label='bwd Diff')
+ax.plot(x, bwd_diff(fx, deltax), label='Bwd Diff')
+
 ax.set_title('Forward and Backward Difference Approximations of $\sin(x)$ Derivative')
 ax.legend(loc='upper right')
