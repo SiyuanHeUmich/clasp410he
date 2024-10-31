@@ -4,7 +4,8 @@ This file contain tools and methods for solving our heat equation and heat
 diffusion
 
 To get solution for lab 4: Run these commands:
->>> run diffusion1.py
+>>> run lab04.py
+>>> import matplotlib.pyplot as plt
 >>> plt.ion()
 >>> validate_solver()
 >>> plot_heat_map()
@@ -238,7 +239,8 @@ def plot_heat_map_with_temp_shift(temp_shift=0):
     plt.colorbar(heat_map, ax=ax, label='Temperature (C)')
     plt.xlabel("Time (years)")
     plt.ylabel("Depth (m)")
-    plt.title(f"Temperature Distribution with {temp_shift}C Shift in Kangerlussuaq, Greenland")    
+    plt.title(f"Temperature Distribution with {temp_shift}C Shift in Kangerlussuaq, Greenland")   
+    plt.show() 
 
 def plot_ground_profile_map(U, xgrid, dt, temp_shift):
     '''
