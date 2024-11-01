@@ -54,6 +54,37 @@ def temp_kanger(t, temp_shift=0):
 
 # heat diff function that works for both problems:
 def heatdiff(xmax, tmax, dx, dt, c2, debug=False, conditions='permafrost', temp_shift=0):
+    '''
+    Heat equation solver. Solves both 'permafrost' and 'wire' problem.
+
+    Parameters:
+    -----------
+    xmax (float):
+        maximum value in x grid in meters (length or depth)
+    tmax (float):
+        maximum value in time grid in days
+    dx (float):
+        spatial step used in solver in meters
+    dt (float):
+        time step used in solver in days
+    c2 (float):
+        Thermal diffusivity constant in m**2/days
+    conditions (string, default = 'permafrost')
+        Determines problem to be solved. Options are: 'permafrost' and 'wire'
+    debug (bool, default = False):
+        If True, prints several statements to check variables being used
+    temp_shift (float, default = 0):
+        Positive surface temperature shift used in permafrost problem.
+
+    Returns
+    -------
+    tgrid (array):
+        1D array containing all times for which temperature was solved for
+    xgrid (array):
+        1D array containing all depths for which temperature was solved for
+    U (array):
+        2D array containing temperatures for all depths and times.
+    '''
 
     #check solution is stable:
     if dt>(dx**2)/(2*c2):
@@ -105,16 +136,11 @@ def heatdiff(xmax, tmax, dx, dt, c2, debug=False, conditions='permafrost', temp_
 def validate_solver():
     '''
     Validate the heat equation solver by comparing a test case provided in the handout. 
-
-    Returns
-    -------
-    time : array
-        Array of time step for the validation test case.
-    x : array
-        Array of depth for the validation test case.
-    U : array
-        2D array of temperatures for each depth and time step.
+    Prints solution obtained from solver and the difference between expected minus 
+    calculated solution (ie. handout numbers minus our function). We expect values equal 
+    or very close to zero.
     '''
+
     #The first array is the time. The second array is the depth. The 2D array is
     # the temperture at certain depth.  
     time, x, U = heatdiff(xmax=1, tmax=0.2, dx=0.2, dt=0.02, c2=1, conditions='wire')
@@ -187,9 +213,9 @@ def plot_ground_profile_map(U, xgrid, dt=1, temp_shift=0):
         2D array of temperatures at each depth and time step.
     xgrid : array
         Array of depths in meters.
-    dt : float
+    dt : float, defaults to 1
         Time step size in seconds.
-    temp_shift : float
+    temp_shift : float, defaults to 0
         Temperature shift in degrees Celsius applied to show warming effects.
 
     '''
