@@ -52,6 +52,8 @@ def temp_kanger(t, temp_shift=0):
 
 # create heat diff function that works for both problems:
 def heatdiff(xmax, tmax, dx, dt, c2, debug=False, conditions='permafrost', temp_shift=0):
+
+    #check solution is stable:
     if dt>(dx**2)/(2*c2):
         raise ValueError('dt is too large! Must be less than dx^2/ (2*c2) for stability')
     
@@ -96,6 +98,13 @@ def heatdiff(xmax, tmax, dx, dt, c2, debug=False, conditions='permafrost', temp_
 
     # Return grid and result
     return tgrid, xgrid, U
+
+
+# c2 = 0.25 * (1/1000)**2 * (86400) # 0.25 mm^2/s covert to m^2/days
+# # Run permafrost model with the specified temperature shift
+# # Collect data from the results
+# time, xgrid, U = heatdiff(xmax=100,dx=1, tmax=100*365, dt=1, c2=c2, temp_shift=0, conditions='permafrost')
+# print(U)
 
 
 def validate_solver():
@@ -152,12 +161,15 @@ def plot_heat_map_with_temp_shift(temp_shift=0):
     ----------
     The plots of heat map
     '''
+    time_days = 100 *365
+    c2 = 0.25 * (1/1000)**2 * (86400) # 0.25 mm^2/s covert to m^2/days
     # Run permafrost model with the specified temperature shift
     # Collect data from the results
-    time, xgrid, U, dt = heatdiff(warming_shift=temp_shift)
+    time, xgrid, U = heatdiff(xmax=100,dx=1, tmax=time_days, dt=1, c2=c2, temp_shift=temp_shift, conditions='permafrost')
+    # print(time)
 
-    # Convert time, seconds, to years for x-axis labeling
-    tgrid_years = time / (365 * 86400)
+    # Convert time, days, to years for x-axis labeling
+    tgrid_years = time / 365
 
     # Plotting the heat map
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -170,7 +182,7 @@ def plot_heat_map_with_temp_shift(temp_shift=0):
     plt.title(f"Temperature Distribution with {temp_shift}C Shift in Kangerlussuaq, Greenland")   
     plt.show() 
 
-def plot_ground_profile_map(U, xgrid, dt, temp_shift):
+def plot_ground_profile_map(U, xgrid, dt=1, temp_shift=0):
     '''
     Plot seasonal temperature for winter and summer at various depths
 
@@ -219,6 +231,9 @@ def plot_ground_profile_map_all_scenarios():
     # Set a list of temperature for different scenarios
     for temp_shift in [0, 0.5, 1, 3]: 
         # Recording data from permafrost_heatdiff_model and use them in plot_ground_profile_map
-        time, xgrid, U, dt = permafrost_heatdiff_model(warming_shift=temp_shift)
-        plot_ground_profile_map(U, xgrid, dt=86400, temp_shift=temp_shift)
+        time_days = 100 *365
+        c2 = 0.25 * (1/1000)**2 * (86400) # 0.25 mm^2/s covert to m^2/days
+        time, xgrid, U, = heatdiff(xmax=100,dx=1, tmax=time_days, dt=1, c2=c2, temp_shift=temp_shift, conditions='permafrost')
+        plot_ground_profile_map(U, xgrid, dt=1, temp_shift=temp_shift)
 
+plot_ground_profile_map_all_scenarios()
