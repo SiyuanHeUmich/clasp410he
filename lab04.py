@@ -14,7 +14,6 @@ To get solution for lab 4: Run these commands:
 >>> plot_heat_map_with_temp_shift(1)
 >>> plot_heat_map_with_temp_shift(3)
 >>> plot_ground_profile_map_all_scenarios()
-
 '''
 
 import numpy as np
@@ -24,35 +23,35 @@ import matplotlib.pyplot as plt
 t_kanger = np.array([-19.7, -21.0, -17., -8.4, 2.3, 8.4,10.7, 8.5, 
                      3.1, -6.0, -12.0, -16.9])
 
-def heatdiff(xmax=1, tmax=0.2, dx=0.1, dt=0.002, c2=1, debug=True):
+solution = np.array(([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0.64, 0.48, 0.40, 0.32, 0.26, 0.21, 0.17, 0.1375, 0.11125, 0.090000, 0.072812],
+                    [0.96, 0.80, 0.64, 0.52, 0.42, 0.34, 0.28, 0.2225, 0.18000, 0.145625, 0.117813],
+                    [0.96, 0.80, 0.64, 0.52, 0.42, 0.34, 0.28, 0.2225, 0.18000, 0.145625, 0.117813],
+                    [0.64, 0.48, 0.40, 0.32, 0.26, 0.21, 0.17, 0.1375, 0.11125, 0.090000, 0.072812],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
+
+def temp_kanger(t, temp_shift=0):
     '''
-    Solve the heat equation by using a forward-difference method
+    For an array of times in days, return timeseries of temperature for
+    Kangerlussuaq, Greenland.
 
     Parameters
     ----------
-    xmax : float, default=1
-        Maximum spatial extent, unit: meters
-    tmax : float, default=0.2
-        Length of time for simulation, unit: seconds
-    dx : float, default=0.1
-        Spatial step size, unit: meters
-    dt : float, default=0.002
-        Time step size, unit: seconds
-    c2 : float, default=1
-        Thermal diffusivity constant
-    debug : boolean, default=True
-        Print additional information about the grid and stability.
-
+    t : float
+        Time in days for  the temperature.
+    temp_shift : float, default=0
+        Temperature shift to simulate warming effects in degrees Celsius.
     Returns
     -------
-    tgrid : array
-        Array of time used in the simulation.
-    xgrid : array
-        Array of depth used in the simulation.
-    U : array
-        2D array of temperatures at each depth and time step.
-
+    float
+        Surface temperature for Kangerlussuaq at time t.
     '''
+    t_amp = (t_kanger - t_kanger.mean()).max()
+    return t_amp*np.sin(np.pi/180 * t - np.pi/2) + t_kanger.mean()+ temp_shift
+
+
+# create heat diff function that works for both problems:
+def heatdiff(xmax, tmax, dx, dt, c2, debug=False, conditions='permafrost', temp_shift=0):
     if dt>(dx**2)/(2*c2):
         raise ValueError('dt is too large! Must be less than dx^2/ (2*c2) for stability')
     
@@ -74,12 +73,18 @@ def heatdiff(xmax=1, tmax=0.2, dx=0.1, dt=0.002, c2=1, debug=True):
     # Initialize our data array:
     U = np.zeros([M, N])
 
-    # Set initial conditions:
-    U[:, 0] = 4*xgrid - 4*xgrid**2
+    if conditions == 'wire':
+        # Set initial conditions:
+        U[:, 0] = 4*xgrid - 4*xgrid**2
 
-    # Set boundary conditions:
-    U[0, :] = 0
-    U[-1, :] = 0
+        # Set boundary conditions:
+        U[0, :] = 0
+        U[-1, :] = 0
+
+    elif conditions == 'permafrost':
+        # Set boundary conditions:
+        U[0, :] = temp_kanger(tgrid, temp_shift=temp_shift)
+        U[-1, :] = 5
 
     # Set our "r" constant.
     r = c2 * dt / dx**2
@@ -91,6 +96,7 @@ def heatdiff(xmax=1, tmax=0.2, dx=0.1, dt=0.002, c2=1, debug=True):
 
     # Return grid and result
     return tgrid, xgrid, U
+
 
 def validate_solver():
     '''
@@ -107,18 +113,19 @@ def validate_solver():
     '''
     #The first array is the time. The second array is the depth. The 2D array is
     # the temperture at certain depth.  
-    time, x, U = heatdiff(xmax=1, tmax=0.2, dx=0.2, dt=0.02, c2=1, debug=False)
-    
-    return time, x, U
+    time, x, U = heatdiff(xmax=1, tmax=0.2, dx=0.2, dt=0.02, c2=1, conditions='wire')
+    diff = solution - U
+    print(f'your solution: {U}')
+    print(f'difference between expected and calculated solution: {diff}')
 
-def plot_heat_map():
+def plot_wire_heat_map():
     '''
-    Plot a heat map of temperature distribution over depth and 
-    time for a heat diffusion problem. 
+    Plot a heat map of temperature distribution over length and 
+    time for a heat diffusion problem in a wire. 
     Displays a heat map showing temperature changes over depth and time.
     '''
     # Get solution using your solver:
-    time, x, heat = heatdiff()
+    time, x, heat = heatdiff(xmax=1, tmax=0.2, dx=0.2, dt=0.02, c2=1, conditions='wire')
     
     # Create a figure/axes object
     fig, axes = plt.subplots(1, 1)
@@ -129,85 +136,6 @@ def plot_heat_map():
     plt.ylabel("Depth (m)")
     plt.title("Temperature Distribution Over Depth and Time")
     plt.show()
-
-def temp_kanger(t, temp_shift=0):
-    '''
-    For an array of times in days, return timeseries of temperature for
-    Kangerlussuaq, Greenland.
-
-    Parameters
-    ----------
-    t : float
-        Time in days for  the temperature.
-    temp_shift : float, default=0
-        Temperature shift to simulate warming effects in degrees Celsius.
-    Returns
-    -------
-    float
-        Surface temperature for Kangerlussuaq at time t.
-    '''
-    t_amp = (t_kanger - t_kanger.mean()).max()
-    return t_amp*np.sin(np.pi/180 * t - np.pi/2) + t_kanger.mean()+ temp_shift
-
-def permafrost_heatdiff_model(dx=1, dt=60*60*24, c2=0.25e-6, years=100, warming_shift=0):
-    '''
-    Solve the heat equation by using a forward-difference method for permafrost problem
-
-    Parameters
-    ----------
-    xmax : float, default=100
-        Maximum spatial extent, unit: meters
-    tmax : float
-        Length of time for simulation, unit: seconds
-    dx : float, default=1
-        Spatial step size, unit: meters
-    dt : float, default=60*60*24
-        Time step size, unit: seconds
-    c2 : float, default=0.25e-6
-        Thermal diffusivity constant
-
-    Returns
-    -------
-    tgrid : array
-        Array of time used in the simulation.
-    xgrid : array
-        Array of depth used in the simulation.
-    U : array
-        2D array of temperatures at each depth and time step.
-
-    '''
-    
-    # Set 100m depth, 100-year simulation
-    xmax = 100 
-    tmax= years*365*24*60*60
-    
-    time = np.arange(0, tmax + dt, dt)
-    xgrid = np.arange(0, xmax + dx, dx)
-    
-    # Start by calculating size of array: MxN
-    M = int(np.round(xmax / dx + 1))
-    N = int(np.round(tmax / dt + 1))
-    
-    #Initialize the values in the array
-    U = np.zeros([M, N])
-    
-    # Initial ground temperature set to 0
-    U[:, 0] = 0  
-
-    # Set Upper boundary
-    U[0, :] = [temp_kanger(t/86400, temp_shift=warming_shift) for t in time] 
-    # Set Lower boundary at 5 degrees
-    U[-1, :] = 5  
-
-    # Set our "r" constant.
-    r = c2 * dt / dx**2
-
-    # Solve! Forward differnce ahoy.
-    for j in range(N-1):
-        U[1:-1, j+1] = (1-2*r) * U[1:-1, j] + \
-            r*(U[2:, j] + U[:-2, j])
-
-    return time, xgrid, U, dt
 
 def plot_heat_map_with_temp_shift(temp_shift=0):
     '''
@@ -226,7 +154,7 @@ def plot_heat_map_with_temp_shift(temp_shift=0):
     '''
     # Run permafrost model with the specified temperature shift
     # Collect data from the results
-    time, xgrid, U, dt = permafrost_heatdiff_model(warming_shift=temp_shift)
+    time, xgrid, U, dt = heatdiff(warming_shift=temp_shift)
 
     # Convert time, seconds, to years for x-axis labeling
     tgrid_years = time / (365 * 86400)
@@ -293,3 +221,4 @@ def plot_ground_profile_map_all_scenarios():
         # Recording data from permafrost_heatdiff_model and use them in plot_ground_profile_map
         time, xgrid, U, dt = permafrost_heatdiff_model(warming_shift=temp_shift)
         plot_ground_profile_map(U, xgrid, dt=86400, temp_shift=temp_shift)
+
