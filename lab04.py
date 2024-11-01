@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 t_kanger = np.array([-19.7, -21.0, -17., -8.4, 2.3, 8.4,10.7, 8.5, 
                      3.1, -6.0, -12.0, -16.9])
 
+# solution to wire problem given in manual
 solution = np.array(([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     [0.64, 0.48, 0.40, 0.32, 0.26, 0.21, 0.17, 0.1375, 0.11125, 0.090000, 0.072812],
                     [0.96, 0.80, 0.64, 0.52, 0.42, 0.34, 0.28, 0.2225, 0.18000, 0.145625, 0.117813],
@@ -30,6 +31,7 @@ solution = np.array(([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     [0.64, 0.48, 0.40, 0.32, 0.26, 0.21, 0.17, 0.1375, 0.11125, 0.090000, 0.072812],
                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
 
+#function defining surface temperature in Greenland
 def temp_kanger(t, temp_shift=0):
     '''
     For an array of times in days, return timeseries of temperature for
@@ -50,7 +52,7 @@ def temp_kanger(t, temp_shift=0):
     return t_amp*np.sin(np.pi/180 * t - np.pi/2) + t_kanger.mean()+ temp_shift
 
 
-# create heat diff function that works for both problems:
+# heat diff function that works for both problems:
 def heatdiff(xmax, tmax, dx, dt, c2, debug=False, conditions='permafrost', temp_shift=0):
 
     #check solution is stable:
@@ -99,14 +101,7 @@ def heatdiff(xmax, tmax, dx, dt, c2, debug=False, conditions='permafrost', temp_
     # Return grid and result
     return tgrid, xgrid, U
 
-
-# c2 = 0.25 * (1/1000)**2 * (86400) # 0.25 mm^2/s covert to m^2/days
-# # Run permafrost model with the specified temperature shift
-# # Collect data from the results
-# time, xgrid, U = heatdiff(xmax=100,dx=1, tmax=100*365, dt=1, c2=c2, temp_shift=0, conditions='permafrost')
-# print(U)
-
-
+# validate solver using given solution to wire problem
 def validate_solver():
     '''
     Validate the heat equation solver by comparing a test case provided in the handout. 
@@ -200,7 +195,7 @@ def plot_ground_profile_map(U, xgrid, dt=1, temp_shift=0):
     '''
 
     # Set indexing for the final year of results:
-    loc = int(-365 * 86400 / dt) 
+    loc = int(-365 / dt) 
     # Extract the min values for winter over the final year:
     winter = U[:, loc:].min(axis=1)
     # Extract the max values for summer over the final year:
@@ -235,5 +230,3 @@ def plot_ground_profile_map_all_scenarios():
         c2 = 0.25 * (1/1000)**2 * (86400) # 0.25 mm^2/s covert to m^2/days
         time, xgrid, U, = heatdiff(xmax=100,dx=1, tmax=time_days, dt=1, c2=c2, temp_shift=temp_shift, conditions='permafrost')
         plot_ground_profile_map(U, xgrid, dt=1, temp_shift=temp_shift)
-
-plot_ground_profile_map_all_scenarios()
