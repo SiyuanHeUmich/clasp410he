@@ -8,7 +8,7 @@ To get solution for lab 4: Run these commands:
 >>> import matplotlib.pyplot as plt
 >>> plt.ion()
 >>> validate_solver()
->>> plot_heat_map()
+>>> plot_wire_heat_map()
 >>> plot_heat_map_with_temp_shift(0)
 >>> plot_heat_map_with_temp_shift(0.5)
 >>> plot_heat_map_with_temp_shift(1)
