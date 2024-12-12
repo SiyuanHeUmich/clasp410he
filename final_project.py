@@ -249,7 +249,7 @@ def simulated_annealing(initial_guess, temp_initial=1.0, temp_final=1e-6, coolin
 
 def q3():
     """
-    Use simulated annealing to find the best-fit K0' value and plot error convergence.
+    Use simulated annealing to find the best-fit K0' value.
     """
     initial_guess = 10
     best_kprime_0, error_history = simulated_annealing(initial_guess)
